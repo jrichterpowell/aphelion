@@ -26,6 +26,7 @@ canvas[resize] {
 canvas{
 	display: block;
 	z-index:0;
+	background: #17202A;
 }
 
 li {
@@ -117,17 +118,22 @@ button{
 #DeathTextL{
 	font-size: 32px;
 }
+#DeathTextL2{
+	font-size: 32px;
+}
 
 </style>
 <html>
 <head>
 <!-- Load the Paper.js library -->
 <script type="text/javascript" src="node_modules/paper/dist/paper-full.js"></script>
+<script type="text/javascript">paper.install(window);</script>
 <!-- <link href="path/to/css/material_colors_full.css" rel="stylesheet"> -->
 <!-- Load external PaperScript and associate it with myCanvas -->
-<script type="text/javascript" src='js/aphelion.js' canvas="myCanvas"></script>
 <script type="text/javascript" src='js/universe.js' canvas="myCanvas"></script>
 <script type="text/javascript" src='js/planet.js' canvas="myCanvas"></script>
+<script type="text/javascript" src='js/ship.js' canvas="myCanvas"></script>
+<script type="text/javascript" src='js/aphelion.js' canvas="myCanvas"></script>
 <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
 </script>
 </head>
@@ -141,15 +147,15 @@ button{
 	</ul>
 	<div id='PauseOverlay' onclick="handleResume()">
 		<div id='overlayText'>
-			<b id="PauseText"> GAME <br> PAUSED</b> 
+			<b id="PauseText">GAME<br>PAUSED</b> 
 			<div id="PauseTextL2">CLICK ANYWHERE TO CONTINUE</div>
 		</div>
 	</div>
 	<div id='DeathOverlay' onclick="window.location.reload()">
 		<div id='DeathText'>
-			<b id='DeathTextL1'> GAME <br> OVER </b>
+			<b id='DeathTextL1'>GAME<br>OVER</b>
 			<div id='DeathTextL'>Final Score: x </div>
-			<div id='DeathTextL'>Click Anywhere To Play Again</div>
+			<div id='DeathTextL2'>Click Anywhere To Play Again</div>
 		</div>
 	</div>
 </body>

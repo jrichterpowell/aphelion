@@ -3,6 +3,7 @@ class Universe {
 	constructor(){
 		this.physObjs = [];
 		this.gravitationConstant = 5e-2;
+		this.gravityRange = 20000;
 		this.stars = [];
 		this.gasses = [];
 		this.chunks = new Map()
@@ -11,20 +12,23 @@ class Universe {
 		this.planetColors = ["#A93226","#CB4335", "#884EA0","#7D3C98", "#2471A3", "#2E86C1", "#17A589","#138D75", "#229954","#28B463","#D4AC0D", "#D68910", "#CA6F1E", "#BA4A00", "#D0D3D4", "#A6ACAF", "#839192"]
 	}
 
+	//Update list of objects close enough to the ship to exert gravitational influence
+	updatePhysObjs(ship){
+		var allObjs = Array.from(this.chunks.values()).map(x => x.objects).flat();;
+		this.physObjs = allObjs.filter(x => x.position.getDistance(ship.position) < this.gravityRange);
+		this.physObjs.push(ship);
+	}
+
 	updateGravity(){
-		this.physObjs.forEach(obj1 =>{
-			this.physObjs.filter(x => (x != obj1) && (x.effectedByGrav)).forEach(obj2 =>{
+		var self = this;
+		self.physObjs.forEach(obj1 =>{
+			self.physObjs.filter(x=> (x != obj1) && (x.effectedByGrav)).forEach(obj2 =>{
 				var distance = obj1.position.getDistance(obj2.position,false);
 
-				//don't compute gravity for objects far away
-				if(distance > GRAVITY_RANGE){
-					return
-				}
-
-				//otherwise compute the effect of obj1 ON obj2
-				var scalar = -1* obj1.mass / (distance * 2) * this.gravitationConstant;
+				//compute the effect of obj1 ON obj2
+				var scalar = -1* obj1.mass / (distance * 2) * self.gravitationConstant;
 				var gravVec = obj2.position.subtract(obj1.position);
-				gravVec = gravVec.divide((new Point()).getDistance(gravVec));
+				gravVec = gravVec.divide(gravVec.length);
 				gravVec = gravVec.multiply(scalar);
 
 				obj2.vel = obj2.vel.add(gravVec);
@@ -55,10 +59,11 @@ class Universe {
 		curChunk.add(0,-1),
 		];
 
+		//check if the chunks in a quadrant centered around the player have been generated, and if not, generate them.
 		visibleChunks.forEach(index => {
 			if(!(this.chunks.has(index.toString()))){
 				this.chunks.set(index.toString(), this.generateChunk(index));
-				this.chunks.forEach(chunk => chunk.background.forEach(child => project.activeLayer.insertChild(0, child)));
+				//this.chunks.forEach(chunk => chunk.background.forEach(child => project.activeLayer.insertChild(0, child)));
 			}
 		})
 	}
@@ -66,16 +71,6 @@ class Universe {
 	generateChunk(location){
 		//Eventually this will change based on how far from the origin we are
 		var chunk = new Chunk();
-
-		//generate the background pane
-		var backgroundColor = new Path.Rectangle(new Rectangle(
-			location.multiply(this.chunkSize),
-			new Size(this.chunkSize).add(10)
-			));
-		backgroundColor.fillColor = "#17202A";
-		chunk.background.push(backgroundColor);
-		backgroundColor.remove();
-
 
 		//generate the stars for the background
 		var starPath = new Path.Circle([0,0], 25);
@@ -87,15 +82,19 @@ class Universe {
 		};
 
 		var star = new Symbol(starPath);
-
 		//place stars
-		/*for(var i = 0; i < chunk.numStars; i++){
+		for(var i = 0; i < chunk.numStars; i++){
 			//find a random point in the new chunk
 			var pos = (Point.random().subtract(0.5)).multiply(this.chunkSize * 2).add(this.chunkSize/2).add(location.multiply(this.chunkSize));
 			var placed = star.place(pos);
-			chunk.background.push(placed);
+			chunk.background.addChild(placed);
 			placed.remove();
-		}*/
+		}
+		var rasterbg = chunk.background.rasterize();
+		rasterbg.position = location;
+		chunk.background.remove();
+
+		project.activeLayer.insertChild(0, rasterbg);
 
 		//generate the planets
 		for(var i = 0; i< chunk.numPlanets; i++){
@@ -110,10 +109,8 @@ class Universe {
 			var planet = new Planet(pos, color,radius);
 			chunk.objects.push(planet);
 		}
-		this.physObjs = this.physObjs.concat(chunk.objects);
 
 		return chunk;
-
 
 	}
 }
@@ -121,9 +118,9 @@ class Universe {
 class Chunk{
 	constructor(){
 		this.objects = []
-		this.background = []
+		this.background = new Layer();
 		this.position = new Point();
-		this.numStars = 100;
+		this.numStars = 1000;
 		this.numPlanets = 3;
 	}
 }
