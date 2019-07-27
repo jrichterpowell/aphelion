@@ -1,7 +1,7 @@
 class Ship{
 	constructor(pos=new Point(),vel=new Point()){
 		this.physical = true;
-		this.mass = 1e-1;
+		this.mass = 1e-5;
 		this.fuel = 0;
 		this.fuelUse = 0.75;
 		this.vel = vel;

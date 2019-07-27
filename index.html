@@ -138,7 +138,7 @@ button{
 </script>
 </head>
 <body>
-	<canvas id="myCanvas" resize></canvas>
+	<canvas id="myCanvas" onMouseWheel="handleScroll(event)" resize></canvas>
 	<ul id="statusbar">
 	<li><img id='pauseButton' src='assets/pause.svg' height="52" width="52" onclick="handlePause()"/></li>
 	<li><b id="fuelText">Remaining Fuel: 100</b></li>
