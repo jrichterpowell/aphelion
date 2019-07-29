@@ -1,126 +1,104 @@
 //Universe class applies global physics to the planets, stars, quasars, etc.
 class Universe {
 	constructor(){
-		this.physObjs = [];
 		this.gravitationConstant = 5e-2;
 		this.gravityRange = 20000;
 		this.stars = [];
 		this.gasses = [];
-		this.chunks = new Map()
-		this.chunkSize = 20000;
-		this.planetSeparation = 10000; //enforce minimum distance between planets
-		this.planetColors = ["#A93226","#CB4335", "#884EA0","#7D3C98", "#2471A3", "#2E86C1", "#17A589","#138D75", "#229954","#28B463","#D4AC0D", "#D68910", "#CA6F1E", "#BA4A00", "#D0D3D4", "#A6ACAF", "#839192"]
+		this.objects = [];
+		this.physObjs = [];
+		this.planetColors = ["#A93226",
+		"#CB4335", "#884EA0","#7D3C98", 
+		"#2471A3", "#2E86C1", "#17A589",
+		"#138D75", "#229954","#28B463",
+		"#D4AC0D", "#D68910", "#CA6F1E", 
+		"#BA4A00", "#D0D3D4", "#A6ACAF", 
+		"#839192"];
+		this.numPlanets = 2;//set the number of planets per chunk
+		this.minDist = 5000;
+		this.chunks = [];
+		this.chunkSize=5000;
 	}
 
 	//Update list of objects close enough to the ship to exert gravitational influence
 	updatePhysObjs(ship){
-		var allObjs = Array.from(this.chunks.values()).map(x => x.objects).flat();;
-		this.physObjs = allObjs.filter(x => x.position.getDistance(ship.position) < this.gravityRange);
+		this.physObjs = this.chunks.flat().filter(x => x.position.getDistance(ship.position) < this.gravityRange);
 		this.physObjs.push(ship);
 	}
 
 	updateGravity(){
-		var self = this;
-		self.physObjs.forEach(obj1 =>{
-			self.physObjs.filter(x=> (x != obj1) && (x.effectedByGrav)).forEach(obj2 =>{
+		this.physObjs.forEach(obj1 =>{
+			this.physObjs.filter(x=> (x != obj1) && (x.effectedByGrav)).forEach(obj2 =>{
 				var distance = obj1.position.getDistance(obj2.position,false);
 
 				//compute the effect of obj1 ON obj2
-				var scalar = -1* obj1.mass / (distance * 2) * self.gravitationConstant;
+				var scalar = -1* obj1.mass / (distance * 2) * this.gravitationConstant;
 				var gravVec = obj2.position.subtract(obj1.position);
+				//scale the gravity direction vector by the constant
 				gravVec = gravVec.divide(gravVec.length);
 				gravVec = gravVec.multiply(scalar);
 
 				obj2.vel = obj2.vel.add(gravVec);
-
 			})
-
 		});
 	}
 	updatePosition(){
 		this.physObjs.forEach(x =>{
-			if(x.constructor.name == 'Planet'){
-				x.sprite.translate(x.vel)
-			}
-			else{
-				x.translate(x.vel);
-			}
+			x.translate(x.vel);
 		})
 	}
 
-	generateUniverse(){
-		var curChunk = new Point(view.center.divide(this.chunkSize));
-		curChunk = curChunk.round();
-
-		var visibleChunks = [
-		curChunk,
-		curChunk.add(-1,0),
-		curChunk.add(-1,-1),
-		curChunk.add(0,-1),
-		];
-
-		//check if the chunks in a quadrant centered around the player have been generated, and if not, generate them.
-		visibleChunks.forEach(index => {
-			if(!(this.chunks.has(index.toString()))){
-				this.chunks.set(index.toString(), this.generateChunk(index));
-				//this.chunks.forEach(chunk => chunk.background.forEach(child => project.activeLayer.insertChild(0, child)));
-			}
-		})
+	initUniverse(){
+		this.chunks[1] = [];
+		for(var i = 0; i < 4; i++){
+			var newPlanets = this.generatePlanets(6000, 90*i, 45);
+			this.chunks[1].push(...newPlanets);
+		}
 	}
 
-	generateChunk(location){
-		//Eventually this will change based on how far from the origin we are
-		var chunk = new Chunk();
+	generateUniverse(ship){
+		var distance = ship.position.length+20000; //assumes origin is (0,0)
+		var angle = ship.angle;
 
-		//generate the stars for the background
-		var starPath = new Path.Circle([0,0], 25);
-		starPath.fillColor= { gradient: { 
-			stops: [[new Color(1,1,1,1), 0.0], [new Color(1,1,1,0), 1]],
-			radial:true},
-			origin: starPath.position,
-			destination: starPath.bounds.rightCenter
-		};
-
-		var star = new Symbol(starPath);
-		//place stars
-		for(var i = 0; i < chunk.numStars; i++){
-			//find a random point in the new chunk
-			var pos = (Point.random().subtract(0.5)).multiply(this.chunkSize * 2).add(this.chunkSize/2).add(location.multiply(this.chunkSize));
-			var placed = star.place(pos);
-			chunk.background.addChild(placed);
-			placed.remove();
+		var range = 450000/distance; //why does this library use degrees instead of radians :/	
+		var idx = Math.floor(distance/this.chunkSize);
+		if(typeof this.chunks[idx] === 'undefined'){
+			this.chunks[idx] = this.generatePlanets(distance, angle, range);
 		}
-		var rasterbg = chunk.background.rasterize();
-		rasterbg.position = location;
-		chunk.background.remove();
-
-		project.activeLayer.insertChild(0, rasterbg);
-
-		//generate the planets
-		for(var i = 0; i< chunk.numPlanets; i++){
-			//find a random point in the new chunk, making sure not to be within the separation boundary of the other planets
-			var pos = (Point.random().subtract(0.5)).multiply((this.chunkSize-this.planetSeparation) * 2).add(this.chunkSize/2).add(location.multiply(this.chunkSize));
-			while( chunk.objects.length > 0 && (Math.min(chunk.objects.map(obj => obj.position.getDistance(pos))) < this.planetSeparation)){
-				pos = (Point.random().subtract(0.5)).multiply((this.chunkSize-this.planetSeparation) * 2).add(this.chunkSize/2).add(location.multiply(this.chunkSize));
-			}
-
-			var radius = Math.random()*100 + 200;
-			var color = this.planetColors[Math.floor(Math.random() * this.planetColors.length)]
-			var planet = new Planet(pos, color,radius);
-			chunk.objects.push(planet);
-		}
-
-		return chunk;
+		/*else if(this.chunks[idx].length < this.maxPlanets){
+			
+		}*/
 
 	}
-}
 
-class Chunk{
-	constructor(){
-		this.objects = []
-		this.background = new Layer();
-		this.position = new Point();
-		this.numStars = 1000;
-		this.numPlanets = 3;
+	generatePlanets(radius, angle, range){
+		var proposedPlanets = [];
+
+		for(var i = 0; i < this.numPlanets; i++){
+			var numFailures = 0;
+			do{
+				var newAngle = (Math.random()-0.5)*2*range + angle; //get an angle near the ship
+				var newRadius = Math.random() + radius;
+				var proposedLocation = new Point(newRadius*Math.cos(newAngle*Math.PI/180), newRadius*Math.sin(newAngle*Math.PI/180));//convert location to cartesian
+				var distances = proposedPlanets.map(p => p.position.getDistance(proposedLocation));
+				var minDistToOthers = Math.min(distances);
+				numFailures += 1;
+			}while(proposedPlanets.length > 0 && minDistToOthers < this.minDist && numFailures < 10)//reroll if we choose a point to close to another planet
+
+			//log in the console if we failed to roll an acceptable location
+			if(numFailures == 10){
+				console.log("Failed to generate planet at", radius,angle, range);
+				continue;
+			}
+			var color = this.planetColors[Math.floor(Math.random()*this.planetColors.length)];
+			var newPlanet = new Planet(proposedLocation, color, 100);
+			proposedPlanets.push(newPlanet);
+		}
+		return proposedPlanets;
+
+	}
+	
+	animatePlanets(time){
+		this.chunks.flat().forEach(p => p.animateGlow(time));
 	}
 }

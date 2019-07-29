@@ -4,22 +4,48 @@ class Planet{
 		this.sprite = new Path.Circle(position, radius);
 		this.sprite.strokeColor = 'white';
 		this.sprite.fillColor = color;
-		this.position = position;
 		this.vel = new Point();
 		this.mass = 1e4;
 		this.physical = true;
 		this.effectedByGrav = false;
+
+		//spacing options
+		this.origin = new Point();
+		this.minDist = 3000;
+		this.maxDist = 10000;
+
+		//glow options
 		this.fuelUp = radius * 0.1;
 		this.glow = new Path.Circle(this.position, radius*5);
+		//set up coloring
+		color = new Color(color);
+		var clearColor = color.clone()
+		clearColor.alpha = 0;
 		this.glow.fillColor = {
 			gradient:{
-			stops: [[color, 0], [ new Color(0,0,0,0),1]],
+			stops: [[color, 0], [clearColor,1]],
 			radial: true
 			},
 			origin: this.position,
 			destination: this.glow.bounds.rightCenter
-		};	
+		};
+		this.glowSeed = Math.random();	
 	}
 
+	get position(){
+		return this.sprite.position;
+	}
 
+	getDistance(point){
+		this.position.getDistance(point);
+	}
+
+	animateGlow(time){
+		this.glow.fillColor.gradient.stops[1].offset = Math.sin(time * 2 + this.glowSeed * 2 * Math.PI) * 0.1 + 0.8;
+	}
+
+	//move the planet sprite which we use as the source for the position data
+	translate(pos){
+		this.sprite.translate(pos);
+	}
 }

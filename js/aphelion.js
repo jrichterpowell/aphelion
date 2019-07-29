@@ -1,18 +1,19 @@
-
 var univ;
 var ship;
 var mouse = new Point();
 mouse['down'] = false;
+var startPlanet;
 
 window.onload = function(){
 	var canvas = document.getElementById('myCanvas');
+	canvas.onmousewheel = handleScroll;
 	paper.setup(canvas);
 	univ = new Universe();
-	univ.generateUniverse();
-	startPlanet = univ.chunks.get((new Point()).toString()).objects[0]
+	startPlanet = new Planet(new Point(), 'red', 200);
+	startPlanet.glow.visible = false;
 
 	//var initialVelocity = new Point(0, Math.sqrt(univ.gravitationConstant*startPlanet.mass/1200));
-	var initialVelocity = new Point(0, 15);
+	var initialVelocity = new Point(0, 20);
 	ship = new Ship(startPlanet.position.add([1500,0]), initialVelocity);
 	view.center = startPlanet.position;
 	view.zoom = 0.1;
@@ -20,11 +21,11 @@ window.onload = function(){
 	project.importSVG("assets/rocket.svg", {onLoad:sprite=>{
 		sprite.fillColor = 'white';
 		ship.loadSprite(sprite);
-		univ.physObjs.push(ship);
 		view.draw();
+		univ.initUniverse();
+		univ.chunks[0] = [startPlanet];
+		defViewMethods(view,univ);
 	}, insert:true});
-
-	defViewMethods(view,univ);
 }
 
 //GLOBALS
@@ -36,11 +37,10 @@ function defViewMethods(view, univ){
 
 	view.onMouseDown = function(event){
 		mouse.down = true;
-		ship.fillColor = 'red';
 	}
 	view.onMouseUp = function(event){
 		mouse.down = false;
-		ship.fillColor = 'white';
+		ship.hideExhaust();
 	}
 
 	view.onFrame = function(event){
@@ -52,13 +52,14 @@ function defViewMethods(view, univ){
 		//update
 		univ.updateGravity()
 		univ.updatePosition()
-		univ.generateUniverse()
+		univ.animatePlanets(event.time);
 		if (event.count % 5 === 0){
 			univ.updatePhysObjs(ship);
+			univ.generateUniverse(ship);
 			ship.updateTrail();
 		}
 
-		//clean this
+		//fixes drift due to lack of mouse updates
 		var delta = view.center.subtract(ship.position);
 		view.center = ship.position;
 		mouse.x -= delta.x;
@@ -67,7 +68,6 @@ function defViewMethods(view, univ){
 		ship.updateRotation(mouse);
 		ship.applyThrottle(mouse);
 		ship.detectCollision(univ,startPlanet);
-
 
 		document.getElementById('fuelText').innerHTML = "Fuel: " + ship.fuel.toFixed(3);
 		if(ship.fuel < 10){
@@ -89,7 +89,19 @@ function handleResume(){
 	document.getElementById("PauseOverlay").style.display = "none";;
 }
 
+function handleScroll(event){
+	view.zoom -= clamp(event.deltaY, -0.005, 0.005);
+	view.zoom = clamp(view.zoom, 1e-3, 1);
+}
+
+function clamp(number, lower, upper){
+	if(number > upper){ return upper; }
+	else if (number < lower){ return lower; }
+	return number
+}
+
 
 
 
 debugger;
+
