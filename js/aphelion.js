@@ -1,8 +1,8 @@
-
 var univ;
 var ship;
 var mouse = new Point();
 mouse['down'] = false;
+var startPlanet;
 
 window.onload = function(){
 	var canvas = document.getElementById('myCanvas');
@@ -10,9 +10,10 @@ window.onload = function(){
 	paper.setup(canvas);
 	univ = new Universe();
 	startPlanet = new Planet(new Point(), 'red', 200);
+	startPlanet.glow.visible = false;
 
 	//var initialVelocity = new Point(0, Math.sqrt(univ.gravitationConstant*startPlanet.mass/1200));
-	var initialVelocity = new Point(0, 15);
+	var initialVelocity = new Point(0, 20);
 	ship = new Ship(startPlanet.position.add([1500,0]), initialVelocity);
 	view.center = startPlanet.position;
 	view.zoom = 0.1;
@@ -21,13 +22,10 @@ window.onload = function(){
 		sprite.fillColor = 'white';
 		ship.loadSprite(sprite);
 		view.draw();
-		var altStartPlanet = new Planet(new Point(10000,0), 'blue', 200);
-		var alt2StartPlanet = new Planet(new Point(-10000,0), 'green', 200);
-		univ.generatePlanets(altStartPlanet);
-		univ.generatePlanets(alt2StartPlanet);
+		univ.initUniverse();
+		univ.chunks[0] = [startPlanet];
 		defViewMethods(view,univ);
 	}, insert:true});
-
 }
 
 //GLOBALS
@@ -39,11 +37,10 @@ function defViewMethods(view, univ){
 
 	view.onMouseDown = function(event){
 		mouse.down = true;
-		ship.fillColor = 'red';
 	}
 	view.onMouseUp = function(event){
 		mouse.down = false;
-		ship.fillColor = 'white';
+		ship.hideExhaust();
 	}
 
 	view.onFrame = function(event){
@@ -55,8 +52,10 @@ function defViewMethods(view, univ){
 		//update
 		univ.updateGravity()
 		univ.updatePosition()
+		univ.animatePlanets(event.time);
 		if (event.count % 5 === 0){
 			univ.updatePhysObjs(ship);
+			univ.generateUniverse(ship);
 			ship.updateTrail();
 		}
 
@@ -92,7 +91,7 @@ function handleResume(){
 
 function handleScroll(event){
 	view.zoom -= clamp(event.deltaY, -0.005, 0.005);
-	view.zoom = clamp(view.zoom, 1e-5, 1);
+	view.zoom = clamp(view.zoom, 1e-3, 1);
 }
 
 function clamp(number, lower, upper){

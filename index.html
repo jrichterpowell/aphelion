@@ -28,22 +28,27 @@ canvas{
 	z-index:0;
 	background: #17202A;
 }
-
-li {
-	float: left;
+ul{
+	display:table;
+	table-layout:fixed;
 }
-
+ul li{
+	display: table-cell;
+}
 li b{
-	font-family: 'Montserrat';
+	width:169px;
+	font-family: 'Roboto Mono';
 	display: block;
 	text-align: center;
 	padding: 14px 16px;
 	text-decoration: none;
+	float: left;
 }
 
 button{
 	z-index:1;
 	position:relative;
+
 }
 
 #PauseOverlay{
@@ -79,6 +84,7 @@ button{
 #pauseButton{
 	z-index: 1;
 	position: relative;
+	color: white;
 }
 #fuelText{
 	z-index: 1;
@@ -135,10 +141,11 @@ button{
 <script type="text/javascript" src='js/ship.js' canvas="myCanvas"></script>
 <script type="text/javascript" src='js/aphelion.js' canvas="myCanvas"></script>
 <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap" rel="stylesheet">
 </script>
 </head>
 <body>
-	<canvas id="myCanvas" onMouseWheel="handleScroll(event)" resize></canvas>
+	<canvas id="myCanvas" resize></canvas>
 	<ul id="statusbar">
 	<li><img id='pauseButton' src='assets/pause.svg' height="52" width="52" onclick="handlePause()"/></li>
 	<li><b id="fuelText">Remaining Fuel: 100</b></li>

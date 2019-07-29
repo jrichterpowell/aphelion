@@ -2,10 +2,10 @@ class Ship{
 	constructor(pos=new Point(),vel=new Point()){
 		this.physical = true;
 		this.mass = 1e-5;
-		this.fuel = 0;
-		this.fuelUse = 0.75;
+		this.fuel = 100;
+		this.fuelUse = 0.85;
 		this.vel = vel;
-		this.throttleCoefficient = 5e-5;
+		this.throttleCoefficient = 3e-5;
 		this.effectedByGrav = true;
 		this.trail = new Path();
 		this.trail.strokeColor = 'red';
@@ -15,6 +15,7 @@ class Ship{
 
 		//placeholder until the svg loads
 		this.sprite = "placeholder";
+		this.invulnerable = false;
 	}
 	//pass the methods through to the sprite object
 	set position(pos){
@@ -34,6 +35,9 @@ class Ship{
 			return this.sprite.position;
 		}
 	}
+	get angle(){
+		return this.sprite.position.angle;
+	}
 
 	set fillColor(color){
 		this.sprite.fillColor = color;
@@ -43,6 +47,9 @@ class Ship{
 	}
 	get bounds(){
 		return this.sprite.bounds;
+	}
+	get exhaustSprite(){
+		return this.sprite.children[1].children[2];
 	}
 	updateRotation(mouse) {
 		this.sprite.rotation = -Math.atan2(mouse.x -this.position.x, mouse.y-this.position.y)*180/Math.PI + 180;
@@ -63,11 +70,16 @@ class Ship{
 			this.vel = this.vel.add(direction.multiply(this.throttleCoefficient));
 			this.fuel -= this.fuelUse;
 			document.getElementById("fuelText").style.color = "white";
+			this.drawExhaust();
 		}
 	}
 	detectCollision(univ, startPlanet){
 
 		var planets = univ.physObjs.filter(x => x != this);
+
+		if(this.invulnerable){
+			return
+		}
 
 		planets.forEach(planet =>{	
 			if (planet.sprite.intersects(this.sprite)){
@@ -97,6 +109,14 @@ class Ship{
 		this.sprite.rotate(-45);
 		this.sprite.scale(0.35);
 		this.sprite.applyMatrix = false;
+	}
+
+	drawExhaust(){
+		this.exhaustSprite.visible = true;
+		this.exhaustSprite.fillColor = new Color(1,Math.random(),0);
+	}
+	hideExhaust(){
+		this.exhaustSprite.visible = false;
 	}
 }
 
