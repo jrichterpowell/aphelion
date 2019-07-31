@@ -14,10 +14,10 @@ class Universe {
 		"#D4AC0D", "#D68910", "#CA6F1E", 
 		"#BA4A00", "#D0D3D4", "#A6ACAF", 
 		"#839192"];
-		this.numPlanets = 2;//set the number of planets per chunk
-		this.minDist = 5000;
+		this.numPlanets = 4;//set the number of planets per chunk
+		this.minDist = 10000;
 		this.chunks = [];
-		this.chunkSize=5000;
+		this.chunkSize=15000;
 	}
 
 	//Update list of objects close enough to the ship to exert gravitational influence
@@ -51,13 +51,13 @@ class Universe {
 	initUniverse(){
 		this.chunks[1] = [];
 		for(var i = 0; i < 4; i++){
-			var newPlanets = this.generatePlanets(6000, 90*i, 45);
+			var newPlanets = this.generatePlanets(25000, 90*i, 45);
 			this.chunks[1].push(...newPlanets);
 		}
 	}
 
 	generateUniverse(ship){
-		var distance = ship.position.length+20000; //assumes origin is (0,0)
+		var distance = ship.position.length+50000; //assumes origin is (0,0)
 		var angle = ship.angle;
 
 		var range = 450000/distance; //why does this library use degrees instead of radians :/	
@@ -91,8 +91,10 @@ class Universe {
 				continue;
 			}
 			var color = this.planetColors[Math.floor(Math.random()*this.planetColors.length)];
-			var newPlanet = new Planet(proposedLocation, color, 100);
+			var newPlanet = new Planet(proposedLocation, color, 800);
+			newPlanet.mass *= Math.sqrt(newPlanet.position.length/(25000));
 			proposedPlanets.push(newPlanet);
+			console.log("Planet created at", newPlanet.position.x, newPlanet.position.y, "range given as", range, "With mass", newPlanet.mass);
 		}
 		return proposedPlanets;
 

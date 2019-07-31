@@ -1,22 +1,26 @@
 var univ;
 var ship;
+var startPlanet;
 var mouse = new Point();
 mouse['down'] = false;
-var startPlanet;
+mouse['scrolled'] = false;
 
-window.onload = function(){
+function launchGame(){
+	document.getElementById('IntroOverlay').style.display = 'none';
 	var canvas = document.getElementById('myCanvas');
-	canvas.onmousewheel = handleScroll;
+	var scope2 = new PaperScope();
+	scope2.activate();
+	canvas.onwheel = (event) => handleScroll(event, mouse);
 	paper.setup(canvas);
 	univ = new Universe();
-	startPlanet = new Planet(new Point(), 'red', 200);
+	startPlanet = new Planet(new Point(), 'red', 1000);
 	startPlanet.glow.visible = false;
 
 	//var initialVelocity = new Point(0, Math.sqrt(univ.gravitationConstant*startPlanet.mass/1200));
-	var initialVelocity = new Point(0, 20);
-	ship = new Ship(startPlanet.position.add([1500,0]), initialVelocity);
+	var initialVelocity = new Point(0, 100);
+	ship = new Ship(startPlanet.bounds.rightCenter.add([2000,0]), initialVelocity);
 	view.center = startPlanet.position;
-	view.zoom = 0.1;
+	view.zoom = 0.001;
 
 	project.importSVG("assets/rocket.svg", {onLoad:sprite=>{
 		sprite.fillColor = 'white';
@@ -47,6 +51,10 @@ function defViewMethods(view, univ){
 		//check if ship is loaded
 		if(ship.sprite == 'placeholder'){
 			return
+		}
+		//intro zoom animation
+		if(event.count < 500 && !mouse.scrolled){
+			view.zoom += 1e-4;
 		}
 
 		//update
@@ -86,12 +94,24 @@ function handlePause(){
 
 function handleResume(){
 	view.play();
-	document.getElementById("PauseOverlay").style.display = "none";;
+	document.getElementById("PauseOverlay").style.display = "none";
 }
 
-function handleScroll(event){
-	view.zoom -= clamp(event.deltaY, -0.005, 0.005);
-	view.zoom = clamp(view.zoom, 1e-3, 1);
+function handleStart(){
+	view.play();
+	document.getElementById("IntroOverlay").style.display = "none";
+}
+
+function handleScroll(event, mouse){
+	event.preventDefault();
+	mouse.scrolled = true;
+	var scaleFac = 1 - event.deltaY/100;
+	//don't zoom if we're already too close or too far
+	if((view.zoom < 0.01 && scaleFac < 1) || (view.zoom > 2 && scaleFac > 1) ){
+		return;
+	}
+	view.scale(scaleFac, mouse);
+	
 }
 
 function clamp(number, lower, upper){
@@ -99,9 +119,4 @@ function clamp(number, lower, upper){
 	else if (number < lower){ return lower; }
 	return number
 }
-
-
-
-
-debugger;
 

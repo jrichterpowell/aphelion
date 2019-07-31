@@ -5,7 +5,7 @@ class Planet{
 		this.sprite.strokeColor = 'white';
 		this.sprite.fillColor = color;
 		this.vel = new Point();
-		this.mass = 1e4;
+		this.mass = 3e5;
 		this.physical = true;
 		this.effectedByGrav = false;
 
@@ -34,6 +34,9 @@ class Planet{
 
 	get position(){
 		return this.sprite.position;
+	}
+	get bounds(){
+		return this.sprite.bounds;
 	}
 
 	getDistance(point){

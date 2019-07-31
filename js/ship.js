@@ -3,9 +3,9 @@ class Ship{
 		this.physical = true;
 		this.mass = 1e-5;
 		this.fuel = 100;
-		this.fuelUse = 0.85;
+		this.fuelUse = 0.75;
 		this.vel = vel;
-		this.throttleCoefficient = 3e-5;
+		this.throttleCoefficient = 5e-5;
 		this.effectedByGrav = true;
 		this.trail = new Path();
 		this.trail.strokeColor = 'red';
