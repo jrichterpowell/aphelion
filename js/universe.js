@@ -3,8 +3,8 @@ class Universe {
 	constructor(){
 		this.gravitationConstant = 5e-2;
 		this.gravityRange = 20000;
-		this.stars = [];
-		this.gasses = [];
+		this.starClusters = [];
+		this.starsPerChunk = 1000;
 		this.objects = [];
 		this.physObjs = [];
 		this.planetColors = ["#A93226",
@@ -15,7 +15,7 @@ class Universe {
 		"#BA4A00", "#D0D3D4", "#A6ACAF", 
 		"#839192"];
 		this.numPlanets = 4;//set the number of planets per chunk
-		this.minDist = 10000;
+		this.minDist = 15000;
 		this.chunks = [];
 		this.chunkSize=15000;
 	}
@@ -52,6 +52,7 @@ class Universe {
 		this.chunks[1] = [];
 		for(var i = 0; i < 4; i++){
 			var newPlanets = this.generatePlanets(25000, 90*i, 45);
+			this.generateStars(25000, 90*i);
 			this.chunks[1].push(...newPlanets);
 		}
 	}
@@ -60,15 +61,13 @@ class Universe {
 		var distance = ship.position.length+50000; //assumes origin is (0,0)
 		var angle = ship.angle;
 
-		var range = 450000/distance; //why does this library use degrees instead of radians :/	
+		var range = 45000/Math.sqrt(distance); //why does this library use degrees instead of radians :/	
 		var idx = Math.floor(distance/this.chunkSize);
 		if(typeof this.chunks[idx] === 'undefined'){
 			this.chunks[idx] = this.generatePlanets(distance, angle, range);
 		}
-		/*else if(this.chunks[idx].length < this.maxPlanets){
-			
-		}*/
-
+		//generate stars
+		//this.generateStars(distance, angle);
 	}
 
 	generatePlanets(radius, angle, range){
@@ -80,8 +79,7 @@ class Universe {
 				var newAngle = (Math.random()-0.5)*2*range + angle; //get an angle near the ship
 				var newRadius = Math.random() + radius;
 				var proposedLocation = new Point(newRadius*Math.cos(newAngle*Math.PI/180), newRadius*Math.sin(newAngle*Math.PI/180));//convert location to cartesian
-				var distances = proposedPlanets.map(p => p.position.getDistance(proposedLocation));
-				var minDistToOthers = Math.min(distances);
+				var minDistToOthers = Math.min(...proposedPlanets.map(p => p.position.getDistance(proposedLocation)));
 				numFailures += 1;
 			}while(proposedPlanets.length > 0 && minDistToOthers < this.minDist && numFailures < 10)//reroll if we choose a point to close to another planet
 
@@ -94,10 +92,27 @@ class Universe {
 			var newPlanet = new Planet(proposedLocation, color, 800);
 			newPlanet.mass *= Math.sqrt(newPlanet.position.length/(25000));
 			proposedPlanets.push(newPlanet);
-			console.log("Planet created at", newPlanet.position.x, newPlanet.position.y, "range given as", range, "With mass", newPlanet.mass);
+			console.log("Planet created at", newPlanet.position.x, newPlanet.position.y, "range:", range, "distance:", radius, "angle:", angle, "Min distance from others", minDistToOthers, "With mass", newPlanet.mass);
 		}
 		return proposedPlanets;
 
+	}
+	generateStars(radius, angle){
+
+		//translate from polar
+		var center = new Point(radius*Math.cos(angle*Math.PI/180), radius*Math.sin(angle*Math.PI/180));
+		var starGroup = new Group();
+
+		for(var i = 0; i< this.starsPerChunk; i++){
+			//randomized position
+			var starPos = Point.random().subtract(0.5).multiply(radius/2).add(center);
+			var star = new Path.Circle({position:starPos, radius:100, fillColor:'white'});
+			starGroup.addChild(star);
+		}
+		var raster = starGroup.rasterize(300, true);
+		raster.selected = true;
+		starGroup.remove();
+		this.starClusters.push(raster);
 	}
 	
 	animatePlanets(time){

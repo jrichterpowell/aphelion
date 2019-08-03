@@ -132,7 +132,8 @@ button{
     width:100%;
 	background-color:rgba(0,0,0,0.65);
 	display:block;
-    overflow: scroll;
+    overflow-y: scroll;
+    overflow-x: hidden;
     height:auto;
     min-height:100%;
 
@@ -146,8 +147,6 @@ button{
     right: 0;
 	background:#ECF0F1;
     font-family: "Roboto";
-    overflow:scroll;
-    
 }
 #LehrerQuote{
 	padding-top: 25px;
@@ -253,5 +252,6 @@ button{
     border: 2px solid #3498DB;
 }
 #StartGame:hover{
-    background-color: #3498DB;
+    color: #3498DB;
+    border-color: #F39C12;
 }

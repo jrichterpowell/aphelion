@@ -39,6 +39,13 @@ class Planet{
 		return this.sprite.bounds;
 	}
 
+	rasterize(dpi, insert){
+		return this.sprite.rasterize(dpi, insert);
+	}
+	remove(){
+		return this.sprite.remove();
+	}
+
 	getDistance(point){
 		this.position.getDistance(point);
 	}

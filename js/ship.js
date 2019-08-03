@@ -107,7 +107,7 @@ class Ship{
 		sprite.position = this.position;
 		this.sprite = sprite;
 		this.sprite.rotate(-45);
-		this.sprite.scale(0.35);
+		//this.sprite.scale(0.55);
 		this.sprite.applyMatrix = false;
 	}
 

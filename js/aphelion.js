@@ -8,8 +8,6 @@ mouse['scrolled'] = false;
 function launchGame(){
 	document.getElementById('IntroOverlay').style.display = 'none';
 	var canvas = document.getElementById('myCanvas');
-	var scope2 = new PaperScope();
-	scope2.activate();
 	canvas.onwheel = (event) => handleScroll(event, mouse);
 	paper.setup(canvas);
 	univ = new Universe();
@@ -25,8 +23,8 @@ function launchGame(){
 	project.importSVG("assets/rocket.svg", {onLoad:sprite=>{
 		sprite.fillColor = 'white';
 		ship.loadSprite(sprite);
-		view.draw();
 		univ.initUniverse();
+		view.draw();
 		univ.chunks[0] = [startPlanet];
 		defViewMethods(view,univ);
 	}, insert:true});
@@ -58,6 +56,7 @@ function defViewMethods(view, univ){
 		}
 
 		//update
+		univ.starClusters.forEach(s => s.translate(10,0));
 		univ.updateGravity()
 		univ.updatePosition()
 		univ.animatePlanets(event.time);
