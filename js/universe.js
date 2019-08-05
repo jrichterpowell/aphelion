@@ -52,7 +52,6 @@ class Universe {
 		this.chunks[1] = [];
 		for(var i = 0; i < 4; i++){
 			var newPlanets = this.generatePlanets(25000, 90*i, 45);
-			this.generateStars(25000, 90*i);
 			this.chunks[1].push(...newPlanets);
 		}
 	}
@@ -61,13 +60,11 @@ class Universe {
 		var distance = ship.position.length+50000; //assumes origin is (0,0)
 		var angle = ship.angle;
 
-		var range = 45000/Math.sqrt(distance); //why does this library use degrees instead of radians :/	
+		var range = 6000/Math.sqrt(distance); //why does this library use degrees instead of radians :/	
 		var idx = Math.floor(distance/this.chunkSize);
 		if(typeof this.chunks[idx] === 'undefined'){
 			this.chunks[idx] = this.generatePlanets(distance, angle, range);
 		}
-		//generate stars
-		//this.generateStars(distance, angle);
 	}
 
 	generatePlanets(radius, angle, range){
@@ -96,23 +93,6 @@ class Universe {
 		}
 		return proposedPlanets;
 
-	}
-	generateStars(radius, angle){
-
-		//translate from polar
-		var center = new Point(radius*Math.cos(angle*Math.PI/180), radius*Math.sin(angle*Math.PI/180));
-		var starGroup = new Group();
-
-		for(var i = 0; i< this.starsPerChunk; i++){
-			//randomized position
-			var starPos = Point.random().subtract(0.5).multiply(radius/2).add(center);
-			var star = new Path.Circle({position:starPos, radius:100, fillColor:'white'});
-			starGroup.addChild(star);
-		}
-		var raster = starGroup.rasterize(300, true);
-		raster.selected = true;
-		starGroup.remove();
-		this.starClusters.push(raster);
 	}
 	
 	animatePlanets(time){

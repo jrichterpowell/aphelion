@@ -10,6 +10,9 @@ canvas[resize] {
     position: absolute;
     top: 0;
     left: 0;
+    background-image:url("assets/background.svg");
+    background-repeat: repeat;
+    background-size: auto;
 }
 #statusbar
 {

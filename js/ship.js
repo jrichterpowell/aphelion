@@ -82,7 +82,9 @@ class Ship{
 		}
 
 		planets.forEach(planet =>{	
-			if (planet.sprite.intersects(this.sprite)){
+			var hit = planet.sprite.hitTest(this.bounds.center);
+			if (hit){
+				//this.deathAnimation(400);
 				view.pause();
 				document.getElementById("DeathOverlay").style.display = "block";
 				document.getElementById("DeathTextL").innerHTML = "Final Score: " + (this.position.getDistance(startPlanet.position).toFixed(3)/this.deltaV).toFixed(3).toString();
@@ -92,7 +94,7 @@ class Ship{
 			planet.glow.selected = true;
 			if (planet.glow.intersects(this.sprite) && planet.glow.visible == true){
 				document.getElementById("fuelText").style.color = "#4caf50";
-				this.fuel += 100;
+				this.fuel = 100;
 				planet.glow.visible = false;
 			}
 			planet.glow.selected = false;
@@ -118,6 +120,33 @@ class Ship{
 	hideExhaust(){
 		this.exhaustSprite.visible = false;
 	}
+	deathAnimation(length){
+		var pieces = flattenGroup(this.sprite);
+		this.sprite.remove();
+		pieces.forEach(p =>{
+			project.activeLayer.addChild(p);
+			console.log(view.bounds)
+			var endPos = Point.random().subtract(0.5).multiply(view.bounds.height);
+			p.tweenTo(
+				{position: endPos },
+				{
+				duration: length,
+				easing: 'easeInCubic'
+				}
+
+				)
+
+		})
+	}
+}
+
+function flattenGroup(object){
+	if(!object.children){
+		return [];
+	}
+	var subItems = object.children.filter(obj => obj.className !== 'Group');
+	var subGroups = object.children.filter(obj => obj.className === 'Group');
+	return [...subItems, ...subGroups.map(flattenGroup).flat() ];
 }
 
 
