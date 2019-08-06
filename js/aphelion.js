@@ -24,6 +24,7 @@ function launchGame(){
 		sprite.fillColor = 'white';
 		ship.loadSprite(sprite);
 		univ.initUniverse();
+		univ.chunks.get((new Point()).toString()).push(startPlanet);
 		view.draw();
 		univ.chunks[0] = [startPlanet];
 		defViewMethods(view,univ);
@@ -56,7 +57,6 @@ function defViewMethods(view, univ){
 		}
 
 		//update
-		univ.starClusters.forEach(s => s.translate(10,0));
 		univ.updateGravity()
 		univ.updatePosition()
 		univ.animatePlanets(event.time);
@@ -106,10 +106,11 @@ function handleScroll(event, mouse){
 	mouse.scrolled = true;
 	var scaleFac = 1 - event.deltaY/100;
 	//don't zoom if we're already too close or too far
-	if((view.zoom < 0.01 && scaleFac < 1) || (view.zoom > 2 && scaleFac > 1) ){
+	if((view.zoom < 0.01 && scaleFac < 1) || (view.zoom > 2 && scaleFac > 1) || Math.abs(event.deltaY) > 75){
 		return;
 	}
 	view.scale(scaleFac, mouse);
+	ship.trail.strokeWidth = (1/view.zoom)*2;
 	
 }
 

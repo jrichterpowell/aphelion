@@ -3,9 +3,6 @@ class Universe {
 	constructor(){
 		this.gravitationConstant = 5e-2;
 		this.gravityRange = 20000;
-		this.starClusters = [];
-		this.starsPerChunk = 1000;
-		this.objects = [];
 		this.physObjs = [];
 		this.planetColors = ["#A93226",
 		"#CB4335", "#884EA0","#7D3C98", 
@@ -16,13 +13,15 @@ class Universe {
 		"#839192"];
 		this.numPlanets = 4;//set the number of planets per chunk
 		this.minDist = 15000;
-		this.chunks = [];
-		this.chunkSize=15000;
+		this.chunks = new Map();
+		this.chunkSize= 75000;
 	}
 
 	//Update list of objects close enough to the ship to exert gravitational influence
 	updatePhysObjs(ship){
-		this.physObjs = this.chunks.flat().filter(x => x.position.getDistance(ship.position) < this.gravityRange);
+		var objs= Array.from(this.chunks.values()).flat()
+		this.physObjs = objs.filter(x => x.position.getDistance(ship.position) < this.gravityRange);
+		//this.physObjs.forEach(obj => obj.sprite.selected = true)
 		this.physObjs.push(ship);
 	}
 
@@ -49,53 +48,92 @@ class Universe {
 	}
 
 	initUniverse(){
-		this.chunks[1] = [];
-		for(var i = 0; i < 4; i++){
-			var newPlanets = this.generatePlanets(25000, 90*i, 45);
-			this.chunks[1].push(...newPlanets);
+		//generate the nine initial chunks
+		for(var i = 0; i < 9; i++){
+			this.generateChunk(new Point(parseInt(i/3) - 2, i%3 - 2));
 		}
 	}
 
+	//check if the universe is generated in a 5x5 grid centered on the ship, generate it if not
+	//we don't need to check the center nine squares since we generated those intially as a base case 
+	//and cover the rest progressively
 	generateUniverse(ship){
-		var distance = ship.position.length+50000; //assumes origin is (0,0)
-		var angle = ship.angle;
-
-		var range = 6000/Math.sqrt(distance); //why does this library use degrees instead of radians :/	
-		var idx = Math.floor(distance/this.chunkSize);
-		if(typeof this.chunks[idx] === 'undefined'){
-			this.chunks[idx] = this.generatePlanets(distance, angle, range);
-		}
+		//the chunk the ship is currently in
+		var shipChunk = truncatePT(ship.position.divide(this.chunkSize));
+		var topCorner = shipChunk.add([-2,-2]);
+		var botCorner = shipChunk.add([-2,2]);
+		var colOne = shipChunk.add([-2,-1]);
+		var colTwo = shipChunk.add([2,-1]);
+		//if 'o'represents the ship, this generates a list of chunks as 
+		// XXXXX
+		// X   X
+		// X o X
+		// X   X
+		// XXXXX
+		var adjChunks = [
+			...[...Array(5).keys()].map(num => topCorner.add(num,0)),
+			...[...Array(5).keys()].map(num => botCorner.add(num,0)),
+			...[...Array(3).keys()].map(num => colOne.add(0,num)),
+			...[...Array(3).keys()].map(num => colTwo.add(0,num)),
+		]
+		
+		//generate those that do not exist
+		adjChunks.forEach(chunk =>{
+			if( !this.chunks.has(chunk.toString()) ){
+				this.generateChunk(chunk);
+			}
+		})
 	}
 
-	generatePlanets(radius, angle, range){
+	generateChunk(index){
 		var proposedPlanets = [];
 
-		for(var i = 0; i < this.numPlanets; i++){
-			var numFailures = 0;
-			do{
-				var newAngle = (Math.random()-0.5)*2*range + angle; //get an angle near the ship
-				var newRadius = Math.random() + radius;
-				var proposedLocation = new Point(newRadius*Math.cos(newAngle*Math.PI/180), newRadius*Math.sin(newAngle*Math.PI/180));//convert location to cartesian
-				var minDistToOthers = Math.min(...proposedPlanets.map(p => p.position.getDistance(proposedLocation)));
-				numFailures += 1;
-			}while(proposedPlanets.length > 0 && minDistToOthers < this.minDist && numFailures < 10)//reroll if we choose a point to close to another planet
+		if(index.className !== 'Point'){
+			console.log("Index was invalid");
+			return
+		}
 
-			//log in the console if we failed to roll an acceptable location
-			if(numFailures == 10){
-				console.log("Failed to generate planet at", radius,angle, range);
+		//generate the n proposed new planets for the chunk
+		//In the future we should add blackholes and quasars as well
+		var chunkStart = index.multiply(this.chunkSize);
+		for(var i = 0; i < this.numPlanets; i++){
+			var attempts = -1;
+			do{
+				attempts += 1;
+				var propLoc = Point.random().multiply(this.chunkSize).add(chunkStart);
+				var minDist = Math.min(...proposedPlanets.map(p => p.position.getDistance(propLoc)));
+			}
+			while( ( (proposedPlanets.length > 0 && minDist < this.minDist)  
+						|| (touchOrigin(index) && propLoc.length < this.gravityRange*1.25) 
+					) && attempts < 10);
+
+			if(attempts === 9){
+				console.log("Failed to generate planet at ", index.x, index.y);
 				continue;
 			}
-			var color = this.planetColors[Math.floor(Math.random()*this.planetColors.length)];
-			var newPlanet = new Planet(proposedLocation, color, 800);
-			newPlanet.mass *= Math.sqrt(newPlanet.position.length/(25000));
-			proposedPlanets.push(newPlanet);
-			console.log("Planet created at", newPlanet.position.x, newPlanet.position.y, "range:", range, "distance:", radius, "angle:", angle, "Min distance from others", minDistToOthers, "With mass", newPlanet.mass);
-		}
-		return proposedPlanets;
+			else{
+				var pColor = this.planetColors[Math.floor(Math.random()* this.planetColors.length)];
+				var newPlanet = new Planet(propLoc, pColor, 800);
+				newPlanet.mass *= Math.sqrt(propLoc.length) / 100;
+				proposedPlanets.push(newPlanet);
+			}
 
+		}
+		this.chunks.set(index.toString(), proposedPlanets);
 	}
 	
 	animatePlanets(time){
-		this.chunks.flat().forEach(p => p.animateGlow(time));
+		Array.from(this.chunks.values()).flat().forEach(p => p.animateGlow(time));
 	}
+}
+
+//helpers
+function truncatePT(point){
+	return new Point( parseInt(point.x), parseInt(point.y) );
+}
+
+//is this index adjacent to the start planet?
+function touchOrigin(index){
+	let touches = (index.equals(new Point()) || index.equals(new Point(-1,-1)) || index.equals(new Point(-1,0)) || index.equals(new Point(0,-1)));
+	return touches;
 }

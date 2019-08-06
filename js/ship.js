@@ -9,7 +9,7 @@ class Ship{
 		this.effectedByGrav = true;
 		this.trail = new Path();
 		this.trail.strokeColor = 'red';
-		this.trail.strokeWidth = 10;
+		this.trail.strokeWidth = 500;
 		this.deltaV = vel.length;
 		this._position = pos;
 
@@ -24,6 +24,7 @@ class Ship{
 		}
 		else{
 			this.sprite.position = pos;
+			this._position = pos;
 		}	
 	}
 
