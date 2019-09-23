@@ -4,17 +4,17 @@
 <head>
 <script type="text/javascript" src="node_modules/paper/dist/paper-core.js"></script>
 <script type="text/javascript">paper.install(window);</script>
+<script type="text/javascript" src='js/utils.js' canvas="myCanvas"></script>
 <script type="text/javascript" src='js/universe.js' canvas="myCanvas"></script>
 <script type="text/javascript" src='js/planet.js' canvas="myCanvas"></script>
 <script type="text/javascript" src='js/ship.js' canvas="myCanvas"></script>
 <script type="text/javascript" src='js/aphelion.js' canvas="myCanvas"></script>
-<script type="text/javascript" src='js/overlayscript1.jss' canvas="ControlCanvas">
-</script>
+<script type="text/javascript" src='js/main.js' canvas="myCanvas"></script>
 <link href="https://fonts.googleapis.com/css?family=Crimson+Pro|Montserrat|Roboto|Roboto+Mono&display=swap" rel="stylesheet">
-</script>
 </head>
 <body>
-	<canvas id="myCanvas" resize></canvas>
+	<!--<div id="mainCanvasBack" class="canvasBack" resize></div>-->
+	<canvas id="mainCanvas" class="gameCanvas" resize></canvas>
 	<div id="IntroOverlay">
 		<div id='IntroInner'>
 			<h1>Aphelion</h1>
@@ -22,24 +22,25 @@
 			<div class="IntroControls">
 				<div id="IntroControlText">
 				Pilot your ship by clicking in the world. The rocket will accelerate towards the mouse, burning fuel as it does so. Scroll to zoom the view. Test it out by clicking in the frame on the right.
-				</div><canvas id="ControlCanvas"></canvas>
+				</div><canvas id="ControlCanvas" class="gameCanvas"></canvas>
 			</div>
 			<h2>Mechanics</h2>
 			<div id="IntroMechanics">
 				<div id="IntroMechanicsText">
 				To this end, you'll want to make use of the beauty of orbital mechanics. By flying close (not <i>too</i> close mind you) to a planet, you'll enter into its sphere of gravitational influence. Do this just right, and you'll be able to "slingshot" your craft, achieving a substantially higher exit than entrance velocity, while gaining "deltaV" (the change in velocity). 
-				</div><canvas id="MechanicsCanvas"></canvas>
+				</div><canvas id="MechanicsCanvas" class="gameCanvas"></canvas>
 			</div>
-			<button id='StartGame' onclick='launchGame()'>Aye Aye Captain</button>
+			<button id='startGame'>READY</button>
 		</div>
 	</div>
 	<ul id="statusbar">
-	<li><img id='pauseButton' src='assets/pause.svg' height="52" width="52" onclick="handlePause()"/></li>
+	<li><img id='pauseButton' src='assets/pause.svg' height="52" width="52" /></li>
 	<li><b id="fuelText">Remaining Fuel: 100</b></li>
 	<li><b id="distanceText">Distance: x</b></li>
 	<li><b id="fpsText">Fps: y</b></li>
+	<li><b id="scoreText">Fps: y</b></li>
 	</ul>
-	<div id='PauseOverlay' onclick="handleResume()">
+	<div id='PauseOverlay'>
 		<div id='overlayText'>
 			<b id="PauseText">GAME<br>PAUSED</b> 
 			<div id="PauseTextL2">CLICK ANYWHERE TO CONTINUE</div>

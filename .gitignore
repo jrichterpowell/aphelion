@@ -1,4 +1,5 @@
 .DS_Store 
- junk/ 
- node_modules/ 
-node_modules
+junk/ 
+node_modules/ 
+.vscode
+.eslint.json

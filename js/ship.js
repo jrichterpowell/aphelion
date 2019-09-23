@@ -1,19 +1,26 @@
 class Ship{
-	constructor(pos=new Point(),vel=new Point()){
+	constructor(pos=new Point(),vel=new Point(), view){
+		//physics options
 		this.physical = true;
 		this.mass = 1e-5;
-		this.fuel = 100;
-		this.fuelUse = 0.75;
-		this.vel = vel;
-		this.throttleCoefficient = 5e-5;
 		this.effectedByGrav = true;
+
+		//fuel settings
+		this.fuel = 100; 	 //starting fuel
+		this.fuelUse = 0.75; //sets rate of fuel use
+		this.fuelFlow = 1; //sets rate of refueling
+		this.vel = vel;      //set starting velocity
+		this.throttleCoefficient = 5e-5;
+
+		//score and trail
 		this.trail = new Path();
 		this.trail.strokeColor = 'red';
-		this.trail.strokeWidth = 500;
+		this.trail.strokeWidth = (1/view.zoom)*2;
 		this.deltaV = vel.length;
-		this._position = pos;
+		this.score = 0;
 
-		//placeholder until the svg loads
+		//misc
+		this._position = pos;
 		this.sprite = "placeholder";
 		this.invulnerable = false;
 	}
@@ -52,12 +59,17 @@ class Ship{
 	get exhaustSprite(){
 		return this.sprite.children[1].children[2];
 	}
+	//rotate the ship to face the mouse pointer
 	updateRotation(mouse) {
 		this.sprite.rotation = -Math.atan2(mouse.x -this.position.x, mouse.y-this.position.y)*180/Math.PI + 180;
 	}
 
-	updateTrail() {
+	//Technically also updates the score as wel
+	updateTrail(selfUniv) {
 		this.trail.add(this.position);
+		if(selfUniv !== undefined){
+			this.score = Math.max(this.score, this.position.getDistance(selfUniv.startPlanet.position));
+		}
 
 		if(this.trail.segments.length > 50){
 			this.trail.segments.shift();
@@ -70,7 +82,13 @@ class Ship{
 			this.deltaV += this.vel.add(direction.multiply(this.throttleCoefficient)).length;
 			this.vel = this.vel.add(direction.multiply(this.throttleCoefficient));
 			this.fuel -= this.fuelUse;
-			document.getElementById("fuelText").style.color = "white";
+			//color fueltext
+			if(this.fuel < 10){
+				document.getElementById('fuelText').style.color = 'red';
+			}
+			else{
+				document.getElementById("fuelText").style.color = "white";
+			}
 			this.drawExhaust();
 		}
 	}
@@ -88,21 +106,30 @@ class Ship{
 				//this.deathAnimation(400);
 				view.pause();
 				document.getElementById("DeathOverlay").style.display = "block";
-				document.getElementById("DeathTextL").innerHTML = "Final Score: " + (this.position.getDistance(startPlanet.position).toFixed(3)/this.deltaV).toFixed(3).toString();
+				document.getElementById("DeathTextL").innerHTML = "Final Score: " + (this.score.toFixed(3));
 			}
 		})
 		planets.forEach(planet =>{
-			planet.glow.selected = true;
-			if (planet.glow.intersects(this.sprite) && planet.glow.visible == true){
+			if (planet.glow.intersects(this.sprite) || this.sprite.isInside(planet.glow.bounds)){
 				document.getElementById("fuelText").style.color = "#4caf50";
-				this.fuel = 100;
-				planet.glow.visible = false;
+				if(this.fuel <= 99.9){
+					planet.fuelUp -= this.fuelFlow;
+					this.fuel += this.fuelFlow;
+					planet.glow.scaling = 0.2 + planet.fuelUp/125;
+				}
 			}
-			planet.glow.selected = false;
 		})
 
 
 	}
+	//reset tutorial on contact with edge of the viewport
+	//since we aren't moving the camera in the tutorial canvases
+	resetOutOfView(aph){
+		if(!this.sprite.isInside(aph.view.bounds)){
+			aph.view.center = this.position.add(aph.view.center).divide(2);
+		}
+	}
+
 	translate(vec){
 		this.sprite.translate(vec);
 	}
@@ -139,15 +166,6 @@ class Ship{
 
 		})
 	}
-}
-
-function flattenGroup(object){
-	if(!object.children){
-		return [];
-	}
-	var subItems = object.children.filter(obj => obj.className !== 'Group');
-	var subGroups = object.children.filter(obj => obj.className === 'Group');
-	return [...subItems, ...subGroups.map(flattenGroup).flat() ];
 }
 
 

@@ -12,15 +12,16 @@ class Universe {
 		"#BA4A00", "#D0D3D4", "#A6ACAF", 
 		"#839192"];
 		this.numPlanets = 4;//set the number of planets per chunk
-		this.minDist = 15000;
+		this.minDist = 50000;
 		this.chunks = new Map();
-		this.chunkSize= 75000;
+		this.chunks.set((new Point()).toString(), []);
+		this.chunkSize= 125000;
 	}
 
 	//Update list of objects close enough to the ship to exert gravitational influence
 	updatePhysObjs(ship){
 		var objs= Array.from(this.chunks.values()).flat()
-		this.physObjs = objs.filter(x => x.position.getDistance(ship.position) < this.gravityRange);
+		this.physObjs = objs.filter(x => x.position.getDistance(ship.position) < this.gravityRange && x.physical);
 		//this.physObjs.forEach(obj => obj.sprite.selected = true)
 		this.physObjs.push(ship);
 	}
@@ -41,10 +42,14 @@ class Universe {
 			})
 		});
 	}
-	updatePosition(){
+	updatePosition(ship,canvas){
+		//apply each objects velocity to it
 		this.physObjs.forEach(x =>{
 			x.translate(x.vel);
 		})
+		//move the background TODO: Find a solution for performance issues caused by this
+		//canvasBack.style.transform = "translate(" + (ship.position.x / -100).toString() + "px,"  + (ship.position.y / -100).toString() + "px)"
+		//canvas.style.backgroundPosition = (ship.position.x / -100).toFixed(0).toString() + "px "  + (ship.position.y / -100).toFixed(0).toString() + "px";
 	}
 
 	initUniverse(){
@@ -113,7 +118,7 @@ class Universe {
 			}
 			else{
 				var pColor = this.planetColors[Math.floor(Math.random()* this.planetColors.length)];
-				var newPlanet = new Planet(propLoc, pColor, 800);
+				var newPlanet = new Planet(propLoc, pColor, 2200);
 				newPlanet.mass *= Math.sqrt(propLoc.length) / 100;
 				proposedPlanets.push(newPlanet);
 			}
@@ -127,13 +132,3 @@ class Universe {
 	}
 }
 
-//helpers
-function truncatePT(point){
-	return new Point( parseInt(point.x), parseInt(point.y) );
-}
-
-//is this index adjacent to the start planet?
-function touchOrigin(index){
-	let touches = (index.equals(new Point()) || index.equals(new Point(-1,-1)) || index.equals(new Point(-1,0)) || index.equals(new Point(0,-1)));
-	return touches;
-}

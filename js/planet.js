@@ -15,8 +15,9 @@ class Planet{
 		this.maxDist = 10000;
 
 		//glow options
-		this.fuelUp = radius * 0.1;
+		this.fuelUp = 100;
 		this.glow = new Path.Circle(this.position, radius*5);
+		this.glow.applyMatrix = false;
 		//set up coloring
 		color = new Color(color);
 		var clearColor = color.clone()
@@ -51,7 +52,7 @@ class Planet{
 	}
 
 	animateGlow(time){
-		this.glow.fillColor.gradient.stops[1].offset = Math.sin(time * 2 + this.glowSeed * 2 * Math.PI) * 0.1 + 0.8;
+		this.glow.fillColor.gradient.stops[1].offset = Math.sin(time * 2 + this.glowSeed * 2 * Math.PI) * 0.1 + 0.9;
 	}
 
 	//move the planet sprite which we use as the source for the position data

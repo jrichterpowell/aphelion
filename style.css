@@ -9,10 +9,25 @@ canvas[resize] {
     height: 100%;
     position: absolute;
     top: 0;
-    left: 0;
-    background-image:url("assets/background.svg");
+	left: 0;
+}
+.canvasBack{
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	background-image:url("assets/background.svg");
     background-repeat: repeat;
-    background-size: auto;
+	background-size: cover;
+	background-color:#17202A;
+	z-index:-1;
+}
+.gameCanvas{
+	background-image:url("assets/background.svg");
+    background-repeat: repeat;
+	background-size: cover;
+	background-color:#17202A;
 }
 #statusbar
 {
@@ -26,7 +41,7 @@ canvas[resize] {
 canvas{
 	display: block;
 	z-index:0;
-	background: #17202A;
+	
 }
 ul{
 	display:table;
@@ -86,17 +101,9 @@ button{
 	position: relative;
 	color: white;
 }
-#fuelText{
-	z-index: 1;
-	color: white;
-}
-#distanceText{
-	z-index: 1;
-	color: white;
-}
-#fpsText{
-	z-index: 1;
-	color: white;
+#statusbar li b{
+	color:white;
+	z-index:1;
 }
 #DeathOverlay{
 	position: fixed;
@@ -151,16 +158,6 @@ button{
 	background:#ECF0F1;
     font-family: "Roboto";
 }
-#LehrerQuote{
-	padding-top: 25px;
-	font-size:2vw;
-	font-family: "Crimson Pro";
-	font-style: italic;
-	text-align: center;
-	width: 35%;
-	margin: auto;
-	color: #BDC3C7;
-}
 
 #IntroInner h1{
 	text-align:center;
@@ -211,7 +208,6 @@ button{
 #ControlCanvas{
 	box-sizing:border-box;
 	border: 3px solid #3498DB;
-	background-color:white;
 	display:inline-block;
 	vertical-align:middle;
 	margin-right: 50px;
@@ -237,7 +233,6 @@ button{
 #MechanicsCanvas{
 	box-sizing:border-box;
 	border: 3px solid #3498DB;
-	background-color:white;
 	display:inline-block;
 	vertical-align:middle;
 	margin-right: 50px;
@@ -245,7 +240,7 @@ button{
 	overflow: hidden;
 }
 
-#StartGame{
+#startGame{
     margin: 25px auto;
     text-align:center;
     font-family: "Montserrat";
@@ -254,7 +249,7 @@ button{
     display:block;
     border: 2px solid #3498DB;
 }
-#StartGame:hover{
+#startGame:hover{
     color: #3498DB;
     border-color: #F39C12;
 }
