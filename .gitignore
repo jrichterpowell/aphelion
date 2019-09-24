@@ -3,3 +3,4 @@ junk/
 node_modules/ 
 .vscode
 .eslint.json
+.package-lock.json

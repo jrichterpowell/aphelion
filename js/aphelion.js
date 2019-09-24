@@ -135,7 +135,7 @@ class Aphelion{
 			if (event.count % 25 === 0){document.getElementById('fuelText').innerHTML = "Fuel: " + selfUniv.ship.fuel.toFixed(3);		
 				document.getElementById('distanceText').innerHTML = "Distance: " + selfUniv.ship.position.getDistance(selfUniv.startPlanet.position).toFixed(3);			
 				document.getElementById('fpsText').innerHTML = "Fps: " + (1/event.delta).toFixed(3);
-				document.getElementById('scoreText').innerHTML ="Score: " + selfUniv.ship.score.toFixed(3);
+				document.getElementById('scoreText').innerHTML ="Score: " + selfUniv.ship.score;
 			}
 
 			//fixes drift due to lack of mouse updates

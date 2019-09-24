@@ -68,7 +68,7 @@ class Ship{
 	updateTrail(selfUniv) {
 		this.trail.add(this.position);
 		if(selfUniv !== undefined){
-			this.score = Math.max(this.score, this.position.getDistance(selfUniv.startPlanet.position));
+			this.score = Math.max(this.score, Math.floor(this.position.getDistance(selfUniv.startPlanet.position)/100));
 		}
 
 		if(this.trail.segments.length > 50){
@@ -106,7 +106,7 @@ class Ship{
 				//this.deathAnimation(400);
 				view.pause();
 				document.getElementById("DeathOverlay").style.display = "block";
-				document.getElementById("DeathTextL").innerHTML = "Final Score: " + (this.score.toFixed(3));
+				document.getElementById("DeathTextL").innerHTML = "Final Score: " + (this.score);
 			}
 		})
 		planets.forEach(planet =>{

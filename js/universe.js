@@ -11,11 +11,11 @@ class Universe {
 		"#D4AC0D", "#D68910", "#CA6F1E", 
 		"#BA4A00", "#D0D3D4", "#A6ACAF", 
 		"#839192"];
-		this.numPlanets = 4;//set the number of planets per chunk
+		this.numPlanets = 5;//set the number of planets per chunk
 		this.minDist = 50000;
 		this.chunks = new Map();
 		this.chunks.set((new Point()).toString(), []);
-		this.chunkSize= 125000;
+		this.chunkSize= 135000;
 	}
 
 	//Update list of objects close enough to the ship to exert gravitational influence

@@ -20,13 +20,13 @@
 			<h1>Aphelion</h1>
 			<h2>Controls</h2>
 			<div class="IntroControls">
-				<div id="IntroControlText">
+				<div class="IntroText">
 				Pilot your ship by clicking in the world. The rocket will accelerate towards the mouse, burning fuel as it does so. Scroll to zoom the view. Test it out by clicking in the frame on the right.
 				</div><canvas id="ControlCanvas" class="gameCanvas"></canvas>
 			</div>
 			<h2>Mechanics</h2>
 			<div id="IntroMechanics">
-				<div id="IntroMechanicsText">
+				<div class="IntroText">
 				To this end, you'll want to make use of the beauty of orbital mechanics. By flying close (not <i>too</i> close mind you) to a planet, you'll enter into its sphere of gravitational influence. Do this just right, and you'll be able to "slingshot" your craft, achieving a substantially higher exit than entrance velocity, while gaining "deltaV" (the change in velocity). 
 				</div><canvas id="MechanicsCanvas" class="gameCanvas"></canvas>
 			</div>
@@ -47,10 +47,11 @@
 		</div>
 	</div>
 	<div id='DeathOverlay' onclick="window.location.reload()">
-		<div id='DeathText'>
-			<b id='DeathTextL1'>GAME<br>OVER</b>
-			<div id='DeathTextL'>Final Score: x </div>
-			<div id='DeathTextL2'>Click Anywhere To Play Again</div>
+		<div class='DeathContainer'>
+			<b>GAME<br>OVER</b>
+			<div id='DeathTextL' class='DeathText'>Final Score: x </div>
+			<div class='DeathText'>Click Anywhere To Play Again</div>
+			<div class='DeathText'><a href='https://github.com/jrichterpowell/aphelion'>Or Click Here to Check out the Repo on GitHub</a></div>
 		</div>
 	</div>
 </body>
