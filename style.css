@@ -55,7 +55,7 @@ ul li{
 	display: table-cell;
 }
 li b{
-	width:169px;
+	width:250px;
 	font-family: 'Roboto Mono';
 	display: block;
 	text-align: center;
@@ -103,6 +103,8 @@ button{
 #pauseButton{
 	z-index: 1;
 	position: relative;
+	margin-left: 20px;
+	margin-top: 25px;
 	color: white;
 }
 #statusbar li b{
@@ -136,13 +138,13 @@ button{
 	color: white;
 	text-decoration: none;
 	font-size: 32px;
+	margin: 16px;
 }
 
 .DeathContainer b{
 	font-size: 64px;
 }
 .DeathContainer .DeathText a{
-	margin: 50px;
 	color: white;
 	text-decoration: none;
 	font-size: 32px;

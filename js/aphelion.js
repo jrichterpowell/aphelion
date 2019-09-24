@@ -118,7 +118,7 @@ class Aphelion{
 
 		selfUniv.view.onFrame = (event) => {
 			//intro zoom animation
-			if(event.count < 500 && !selfUniv.mouse.scrolled){
+			if(selfUniv.view.zoom < 0.01  && event.count < 100){
 				selfUniv.view.zoom += 1e-4;
 			}
 
@@ -232,7 +232,7 @@ class Aphelion{
 		this.mouse.scrolled = true;
 		var scaleFac = 1 - event.deltaY/100;
 		//don't zoom if we're already too close or too far
-		if((this.view.zoom < 0.005 && scaleFac < 1) || (this.view.zoom > 2 && scaleFac > 1) || Math.abs(event.deltaY) > 75){
+		if((this.view.zoom < 0.01 && scaleFac < 1) || (this.view.zoom > 2 && scaleFac > 1) || Math.abs(event.deltaY) > 75){
 			return;
 		}
 		this.view.scale(scaleFac);

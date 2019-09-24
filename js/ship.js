@@ -15,7 +15,7 @@ class Ship{
 		//score and trail
 		this.trail = new Path();
 		this.trail.strokeColor = 'red';
-		this.trail.strokeWidth = (1/view.zoom)*2;
+		this.trail.strokeWidth = 300;
 		this.deltaV = vel.length;
 		this.score = 0;
 
@@ -137,8 +137,11 @@ class Ship{
 		sprite.position = this.position;
 		this.sprite = sprite;
 		this.sprite.rotate(-45);
-		//this.sprite.scale(0.55);
+		this.sprite.scale(2);
+		//sprite.children[1].children[2].scale(5);
+		//fix this at some point
 		this.sprite.applyMatrix = false;
+		
 	}
 
 	drawExhaust(){
